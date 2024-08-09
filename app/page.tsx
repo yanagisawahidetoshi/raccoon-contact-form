@@ -10,15 +10,14 @@ const Home = () => {
   const {
     formData,
     errors,
-    isConfirmed,
-    isSubmitted,
+    step,
     handleChange,
     handleConfirm,
     handleBack,
     handleSubmit,
   } = useContactForm();
 
-  if (isSubmitted) {
+  if (step === "thanks") {
     return (
       <div>
         <h2>Thanks!</h2>
@@ -27,7 +26,7 @@ const Home = () => {
     );
   }
 
-  if (isConfirmed) {
+  if (step === "confirm") {
     return (
       <Confirm
         formData={formData}

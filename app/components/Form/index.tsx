@@ -45,20 +45,16 @@ export const Form: React.FC<Props> = ({
       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
         性別
       </label>
-      <Radio
-        label="男性"
-        name="gender"
-        value="男性"
-        checked={formData.gender === "男性"}
-        onChange={handleChange}
-      />
-      <Radio
-        label="女性"
-        name="gender"
-        value="女性"
-        checked={formData.gender === "女性"}
-        onChange={handleChange}
-      />
+      {["男性", "女性"].map((v) => (
+        <Radio
+          label={v}
+          name="gender"
+          value={v}
+          checked={formData.gender === v}
+          onChange={handleChange}
+          key={v}
+        />
+      ))}
       <ErrorMessage message={errors.gender} />
     </div>
     <div>
@@ -75,18 +71,15 @@ export const Form: React.FC<Props> = ({
       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
         スキル
       </label>
-      <Checkbox
-        label="HTML"
-        name="html"
-        checked={formData.skills.includes("html")}
-        onChange={handleChange}
-      />
-      <Checkbox
-        label="JavaScript"
-        name="javascript"
-        checked={formData.skills.includes("javascript")}
-        onChange={handleChange}
-      />
+      {["Html", "JavaScript"].map((v) => (
+        <Checkbox
+          label={v}
+          name={v}
+          checked={formData.skills.includes(v)}
+          onChange={handleChange}
+          key={v}
+        />
+      ))}
       <ErrorMessage message={errors.skills} />
     </div>
     <div>

@@ -1,6 +1,6 @@
-"use client";
 import { useState, ChangeEvent } from "react";
 import { Errors, FormData } from "../types";
+import { isRequired, isValidEmail } from "./validator";
 
 export const useContactForm = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -13,8 +13,7 @@ export const useContactForm = () => {
   });
 
   const [errors, setErrors] = useState<Errors>({});
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "confirm" | "thanks">("form");
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -22,36 +21,58 @@ export const useContactForm = () => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const { checked } = e.target as HTMLInputElement;
-      setFormData((prevData) => {
+      setFormData((v) => {
         const newSkills = checked
-          ? [...prevData.skills, name]
-          : prevData.skills.filter((skill) => skill !== name);
+          ? [...v.skills, name]
+          : v.skills.filter((skill) => skill !== name);
         return {
-          ...prevData,
+          ...v,
           skills: newSkills,
         };
       });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      return;
     }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const validate = () => {
     const newErrors: Errors = {};
-    if (!formData.name) newErrors.name = "名前を入力してください";
-    if (!formData.email) newErrors.email = "メールアドレスを入力してください";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "有効なメールアドレスを入力してください";
-    if (!formData.gender) newErrors.gender = "性別を選択してください";
-    if (!formData.prefecture)
-      newErrors.prefecture = "都道府県を選択してください";
-    if (formData.skills.length === 0)
-      newErrors.skills = "少なくとも1つのスキルを選択してください";
-    if (!formData.selfPromotion)
-      newErrors.selfPromotion = "自己アピールを入力してください";
+
+    const nameError = isRequired(formData.name, "名前");
+    if (nameError) {
+      newErrors.name = nameError;
+    }
+
+    const emailError = isRequired(formData.email, "メールアドレス");
+    const emailValidError = isValidEmail(formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
+    } else if (emailValidError) {
+      newErrors.email = emailValidError;
+    }
+
+    const genderError = isRequired(formData.gender, "性別");
+    if (genderError) {
+      newErrors.gender = genderError;
+    }
+
+    const prefectureError = isRequired(formData.prefecture, "都道府県");
+    if (prefectureError) {
+      newErrors.prefecture = prefectureError;
+    }
+
+    const skillsError = isRequired(formData.skills, "スキル");
+    if (skillsError) {
+      newErrors.skills = skillsError;
+    }
+
+    const selfPromotionError = isRequired(formData.selfPromotion, "自己紹介");
+    if (selfPromotionError) {
+      newErrors.selfPromotion = selfPromotionError;
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -59,24 +80,22 @@ export const useContactForm = () => {
 
   const handleConfirm = () => {
     if (validate()) {
-      setIsConfirmed(true);
+      setStep("confirm");
     }
   };
 
   const handleBack = () => {
-    setIsConfirmed(false);
+    setStep("form");
   };
 
   const handleSubmit = () => {
-    setIsSubmitted(true);
-    setIsConfirmed(false);
+    setStep("thanks");
   };
 
   return {
     formData,
     errors,
-    isConfirmed,
-    isSubmitted,
+    step,
     handleChange,
     handleConfirm,
     handleBack,
